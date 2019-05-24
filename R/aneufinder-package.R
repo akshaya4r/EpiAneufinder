@@ -8,6 +8,6 @@
 #'
 #' @author Aaron Taudt, David Porubsky
 #' @docType package
-#' @name AneuFinder-package
-#' @aliases AneuFinder
+#' @name AneuFinder2-package
+#' @aliases AneuFinder2
 NULL
