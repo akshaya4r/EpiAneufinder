@@ -79,6 +79,7 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
                        refine.breakpoints=FALSE, hotspot.bandwidth=NULL,
                        hotspot.pval=5e-2, cluster.plots=TRUE) {
 
+    print("Executing the EpiAneufinder package")
     # load config params, but arguments take priority
     conf <- list()
     if (!is.null(configfile))
