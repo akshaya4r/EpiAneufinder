@@ -16,7 +16,6 @@ readGRanges.character <- function(x, ...) {
         gr <- readGRanges(Rsamtools::BamFile(x))
     }
     else if (grepl("\\.bed(\\.gz)?$", x)) {
-        print('Function call Bed file')
         gr <- readGRanges.BedFile(x, ...)
     }
     else
