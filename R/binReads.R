@@ -71,12 +71,10 @@
 #'                    chromosomes=c(1:19,'X','Y'))
 #' print(binned)
 binReads <- function(reads, bins) {
-    print('This is the main function binReads')
     UseMethod("binReads")
 }
 
 binReads.character <- function(reads, bins) {
-    print('This is the binReads.character funtion')
     if (length(reads) == 1 && dir.exists(reads))
         reads = list.files(reads, "\\.(bam|bed(\\.gz)?)$", full.names=TRUE)
     if (length(reads) == 0)
@@ -90,7 +88,6 @@ binReads.character <- function(reads, bins) {
 }
 
 binReads.GRanges <- function(reads, bins) {
-    print('This is the binReads.GRanges funtion')
     strands <- split(reads, GenomicRanges::strand(reads))
     clist <- lapply(strands, function(r)
                     suppressWarnings(GenomicRanges::countOverlaps(bins, r, type = "any")))
@@ -105,7 +102,6 @@ binReads.GRanges <- function(reads, bins) {
 
 #TODO: check same genome
 binReads.list <- function(reads, bins) {
-    print('This is the binReads.list funtion')
     message("Reading ", length(reads), " sequence files ...")
     lapply(reads, binReads, bins=bins)
 }
