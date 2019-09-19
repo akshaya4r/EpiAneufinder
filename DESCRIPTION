@@ -1,4 +1,4 @@
-Package: AneuFinder2
+Package: EpiAneuFinder
 Type: Package
 Title: Analysis of Copy Number Variation in Single-Cell-Sequencing Data
 Version: 1.9.0
