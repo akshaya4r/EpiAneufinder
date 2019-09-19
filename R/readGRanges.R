@@ -9,7 +9,6 @@ readGRanges <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), ...) {
 }
 
 readGRanges.character <- function(x, ...) {
-    print("This is the readGRanges.character funtion")
     if (length(x) != 1)
         stop("readGRanges needs exactly one file")
 
@@ -31,7 +30,6 @@ readGRanges.character <- function(x, ...) {
 readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10,
                                 pairedEndReads=FALSE, remove.duplicate.reads=FALSE,
                                 max.fragment.width=1000) {
-    print("This is the readGRanges.Bamfile funtion")
     if (!file.exists(paste0(x$path, ".bai"))) { # x$index?
         ptm <- startTimedMessage("Couldn't find BAM index file, creating one.")
         Rsamtools::indexBam(x)
