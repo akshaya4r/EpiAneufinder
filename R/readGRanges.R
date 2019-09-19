@@ -13,7 +13,6 @@ readGRanges.character <- function(x, ...) {
         stop("readGRanges needs exactly one file")
 
     if (grepl("\\.bam$", x)){
-        print('Function call Bam file')
         gr <- readGRanges(Rsamtools::BamFile(x))
     }
     else if (grepl("\\.bed(\\.gz)?$", x)) {
