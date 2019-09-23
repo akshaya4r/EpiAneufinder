@@ -45,14 +45,16 @@
 heatmapGenomewide <- function(models, cluster=FALSE) {
     if ("aneuHMM" %in% class(models))
         models = list(models)
-
+    print("In the heatmapGenomewide function")
     segs <- do.call("rbind", lapply(models, function(m) {
-        segs <- as.data.frame(m$segments)
-        segs$ID <- m$ID
-        segs
+        if(!is.null(m$segments)) {
+          segs <- as.data.frame(m$segments)
+          segs$ID <- m$ID
+          segs
+        }
     }))
 
-    ggplot(segs, aes(color=state)) +
+    ggplot2::ggplot(segs, aes(color=state)) +
         geom_segment(aes(x=start, xend=end, y=ID, yend=ID), size=8) +
         facet_grid(. ~ seqnames, scales="free_x", space="free_x") +
         scale_color_manual(values=stateColors(levels(segs$state))) +
