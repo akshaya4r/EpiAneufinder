@@ -178,11 +178,16 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
         reads
     }
     reads <- lapply(inputfolder, bin_reads)
+<<<<<<< HEAD
 
+=======
+    stop()
+>>>>>>> e77425c28b986535b443f31f630a280f87cd6a0c
     # Temp fix - For reads that have zero counts, remove cell from list
     reads <- lapply(reads, function(x){
       counts <- mcols(x)[,"counts"]
       if(all(counts == 0)) {
+<<<<<<< HEAD
         NULL
       } else {
         x
@@ -190,6 +195,12 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
     })
     reads <- Filter(Negate(is.null), reads)
     
+=======
+        return(NULL)
+      }
+    })
+    reads <- Filter(Negate(is.null), reads)
+>>>>>>> e77425c28b986535b443f31f630a280f87cd6a0c
     ###
     ### Identify CNVs
     ###
