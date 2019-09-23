@@ -189,7 +189,7 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
       }
     })
     reads <- Filter(Negate(is.null), reads)
-    
+
     ###
     ### Identify CNVs
     ###
