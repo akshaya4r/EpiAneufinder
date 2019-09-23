@@ -25,13 +25,16 @@
 edivisive.findCNVs <- function(binned.data, ID=NULL, CNgrid.start=1.5,
                                strand='*', R=10, sig.lvl=0.1) {
 
+    result <- list(ID=ID, bins=binned.data)
+
     warlist <- list()
-    if (strand=='+')
-        select <- 'pcounts'
-    else if (strand=='-')
-        select <- 'mcounts'
-    else if (strand=='*')
-        select <- 'counts'
+    if (strand=='+'){
+      select <- 'pcounts'
+      } else if (strand=='-'){
+      select <- 'mcounts'
+      } else if (strand=='*'){
+      select <- 'counts'
+      }
 
     counts <- mcols(binned.data)[,select]
     if (any(is.na(counts))) {
@@ -47,10 +50,11 @@ edivisive.findCNVs <- function(binned.data, ID=NULL, CNgrid.start=1.5,
         result$warnings <- warlist
         return(result)
     }
-
+    
     set.seed(0)
     binned.data$cluster <- NA
     cl <- 0
+    
     for (chrom in unique(as.character(seqnames(binned.data)))) {
         chr.rows <- which(as.character(seqnames(binned.data)) == chrom)
         counts.chrom <- counts[chr.rows]
@@ -78,7 +82,6 @@ edivisive.findCNVs <- function(binned.data, ID=NULL, CNgrid.start=1.5,
     CN.states <- round(counts.normal.mean * CN)
     names(CN.states) <- NULL
 
-    result <- list(ID=ID, bins=binned.data)
     result$bins$state <- factor(paste0(CN.states,'-somy'),
                                 levels=paste0(sort(unique(CN.states)),'-somy'))
     result$bins$copy.number <- CN.states
