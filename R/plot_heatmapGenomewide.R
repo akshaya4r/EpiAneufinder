@@ -28,6 +28,7 @@
 #' @return A \code{\link[ggplot2:ggplot]{ggplot}} object or \code{NULL} if a file was specified.
 #' @importFrom stats as.dendrogram
 #' @importFrom ggdendro dendro_data theme_dendro
+#' @import ggplot2
 #' @importFrom S4Vectors endoapply
 #' @export
 #' @examples
@@ -45,7 +46,6 @@
 heatmapGenomewide <- function(models, cluster=FALSE) {
     if ("aneuHMM" %in% class(models))
         models = list(models)
-    print("In the heatmapGenomewide function")
     segs <- do.call("rbind", lapply(models, function(m) {
         if(!is.null(m$segments)) {
           segs <- as.data.frame(m$segments)
@@ -54,7 +54,7 @@ heatmapGenomewide <- function(models, cluster=FALSE) {
         }
     }))
 
-    ggplot2::ggplot(segs, aes(color=state)) +
+    ggplot(segs, aes(color=state)) +
         geom_segment(aes(x=start, xend=end, y=ID, yend=ID), size=8) +
         facet_grid(. ~ seqnames, scales="free_x", space="free_x") +
         scale_color_manual(values=stateColors(levels(segs$state))) +
