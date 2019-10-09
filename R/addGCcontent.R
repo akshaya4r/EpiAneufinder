@@ -27,7 +27,7 @@ addGCcontent.GRanges <- function(bins, BSgenome=NULL) {
 }
 
 addGCcontent.list <- function(bins, BSgenome=NULL) {
-    lapply(bins, addGCcontent, BSgenome=BSgenome, method=method)
+    lapply(bins, addGCcontent, BSgenome=BSgenome)
 }
 
 addGCcontent.default <- function(bins) {
