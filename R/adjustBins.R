@@ -34,6 +34,7 @@
 #' ## Plot the distribution of binsizes
 #' hist(width(bins[['binsize_1e+06']]), breaks=50)
 adjustBins <- function(bins, reads) {
+    print("Adjusting bins for variable width reference")
     bins <- binReads(reads, bins)
     strand(reads) <- '*'
     reads <- sort(reads)
