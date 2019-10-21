@@ -184,8 +184,8 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
     reads
     }
     reads <- lapply(inputfolder, bin_reads)
-    print(reads)
     
+      
     # Temp fix - For reads that have zero counts, remove cell from list
     reads <- lapply(reads, function(x){
       counts <- mcols(x)[,"counts"]
