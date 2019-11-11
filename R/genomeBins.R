@@ -77,3 +77,4 @@ genomeBins.character <- function(seqinfo, ...) {
 genomeBins.default <- function(x, ...) {
     stop("Do not know how to create bins from object type ", sQuote(class(x)))
 }
+

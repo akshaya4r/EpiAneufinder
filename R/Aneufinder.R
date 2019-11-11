@@ -74,12 +74,12 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
                        reads.store=FALSE, correction.method=NULL,
                        GC.BSgenome=NULL, method='edivisive', strandseq=FALSE,
                        R=10, sig.lvl=0.1, eps=0.01, max.time=60, max.iter=5000,
-                       num.trials=15,
+                       num.trials=15,transcript.db=NULL,datatype=NULL,
                        states=c('zero-inflation',paste0(0:10,'-somy')),
                        most.frequent.state='2-somy',
                        most.frequent.state.strandseq='1-somy', confint=NULL,
                        refine.breakpoints=FALSE, hotspot.bandwidth=NULL,
-                       hotspot.pval=5e-2, cluster.plots=TRUE, rrbs=TRUE) {
+                       hotspot.pval=5e-2, cluster.plots=TRUE, rrbs=FALSE) {
   
   
   print("Executing the EpiAneufinder package")
@@ -91,6 +91,8 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
   conf <- utils::modifyList(conf, args)
   conf$reuse.existing.files <- reuse.existing.files #FIXME: take this from call (match w/ default args)
   conf$cluster.plots <- cluster.plots
+   
+  
   #    checkClass(conf=conf) # this is still too verbose
   # ^^ also should check/set [most will be done in checkClass already]:
   #  binsize/stepsize is integer >= 1; one step size for each bin size
@@ -110,6 +112,15 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
   #  warn if chromosome requested but not in seq file (error if no matches)
   #  NCBI/UCSC chromosome names consistent
   #  blacklist also has right chromosomes
+ 
+  params <- list(numCPU=numCPU, reuse.existing.files=reuse.existing.files, binsizes=binsizes, variable.width.reference=variable.width.reference, 
+                 reads.per.bin=reads.per.bin, pairedEndReads=pairedEndReads, assembly=assembly, chromosomes=chromosomes, remove.duplicate.reads=remove.duplicate.reads, 
+                 min.mapq=min.mapq, blacklist=blacklist, reads.store=reads.store, use.bamsignals=use.bamsignals, correction.method=correction.method, 
+                 GC.BSgenome=GC.BSgenome, method=method, strandseq=strandseq, eps=eps, max.time=max.time, max.iter=max.iter, num.trials=num.trials, 
+                 states=states, most.frequent.state=most.frequent.state, most.frequent.state.strandseq=most.frequent.state.strandseq, 
+                 hotspot.pval=hotspot.pval, cluster.plots=cluster.plots, rrbs=rrbs, datatype=datatype, transcript.db=transcript.db)
+  conf <- c(conf, params[setdiff(names(params),names(conf))])
+  writeConfig(conf, configfile=file.path(outputfolder, 'AneuFinder.config'))
   
   makedir(conf$outputfolder)
   seqinfo <- genome(assembly)
@@ -135,6 +146,10 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
       ! "GC.content" %in% colnames(bins)) {
     bins <- addGCcontent(bins, BSgenome=GC.BSgenome)
     changed <- TRUE
+  }
+  
+  if ("RNA" %in% datatype) {
+    bins <- addExpressionFactor(bins, gene.annotation=transcript.db)
   }
   if (changed)
     saveRDS(bins, file=fname)
@@ -180,12 +195,14 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
       reads <- correctGC(reads, method="loess")
     if (rrbs)
       reads <- correctRRBS(reads, REpattern='CCGG', BSgenome=GC.BSgenome)
+    if ("RNA" %in% datatype)
+      reads <- correctExpression(reads)
     saveRDS(reads, file=fname)
     reads
-    }
-    reads <- lapply(inputfolder, bin_reads)
+  }
+
+  reads <- lapply(inputfolder, bin_reads)
     
-      
     # Temp fix - For reads that have zero counts, remove cell from list
     reads <- lapply(reads, function(x){
       counts <- mcols(x)[,"counts"]
@@ -195,6 +212,7 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
         x
       }
     })
+
     reads <- Filter(Negate(is.null), reads)
     ###
     ### Identify CNVs
