@@ -70,11 +70,11 @@
 #' binned <- binReads(bedfile, assembly='mm10', binsize=1e6,
 #'                    chromosomes=c(1:19,'X','Y'))
 #' print(binned)
-binReads <- function(reads, bins) {
+binReads <- function(reads, bins, datatype=NULL, transcript.db=NULL) {
     UseMethod("binReads")
 }
 
-binReads.character <- function(reads, bins) {
+binReads.character <- function(reads, bins, datatype=NULL, transcript.db=NULL) {
     if (length(reads) == 1 && dir.exists(reads))
         reads = list.files(reads, "\\.(bam|bed(\\.gz)?)$", full.names=TRUE)
     if (length(reads) == 0)
@@ -83,8 +83,10 @@ binReads.character <- function(reads, bins) {
 
     if (length(reads) > 1)
         binReads(as.list(reads), bins)
-    else
-        binReads(readGRanges(reads), bins)
+    else {
+        reads <- readGRanges(reads, datatype=datatype, transcript.db=transcript.db)
+        binReads(reads, bins)
+    }
 }
 
 binReads.GRanges <- function(reads, bins) {
@@ -101,9 +103,9 @@ binReads.GRanges <- function(reads, bins) {
 }
 
 #TODO: check same genome
-binReads.list <- function(reads, bins) {
+binReads.list <- function(reads, bins, datatype=NULL, transcript.db=NULL) {
     message("Reading ", length(reads), " sequence files ...")
-    lapply(reads, binReads, bins=bins)
+    lapply(reads, binReads, bins=bins, datatype=datatype, transcript.db=transcript.db)
 }
 
 binReads.default <- function(reads, bins) {

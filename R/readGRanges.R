@@ -4,19 +4,20 @@
 #' @param seqinfo  Seqinfo object with metadata about the genome
 #' @return  A GRanges object containing all the reads of the sequence file
 #' @export
-readGRanges <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), ...) {
+readGRanges <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), datatype=NULL,
+                        transcript.db=NULL, ...) {
     UseMethod("readGRanges")
 }
 
-readGRanges.character <- function(x, ...) {
+readGRanges.character <- function(x, datatype=NULL, transcript.db=NULL, ...) {
     if (length(x) != 1)
         stop("readGRanges needs exactly one file")
 
     if (grepl("\\.bam$", x)){
-        gr <- readGRanges(Rsamtools::BamFile(x))
+        gr <- readGRanges(Rsamtools::BamFile(x), datatype=datatype, transcript.db=transcript.db)
     }
     else if (grepl("\\.bed(\\.gz)?$", x)) {
-        gr <- readGRanges.BedFile(x, ...)
+        gr <- readGRanges.BedFile(x, datatype=datatype, transcript.db=transcript.db, ...)
     }
     else
         stop("Unknown file extension (bam/bed supported): ", sQuote(x))
@@ -27,16 +28,24 @@ readGRanges.character <- function(x, ...) {
 
 readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10,
                                 pairedEndReads=FALSE, remove.duplicate.reads=FALSE,
-                                max.fragment.width=1000) {
+                                max.fragment.width=1000, 
+                                datatype=NULL, transcript.db=NULL) {
     if (!file.exists(paste0(x$path, ".bai"))) { # x$index?
         ptm <- startTimedMessage("Couldn't find BAM index file, creating one.")
         Rsamtools::indexBam(x)
         stopTimedMessage(ptm)
     }
-
     ptm <- startTimedMessage("Reading file ", basename(x$path), " ...")
-    args <- list(file=x) #, what="mapq", mapqFilter=min.mapq),
-                 #param=Rsamtools::ScanBamParam(which=range(gr)))
+    if(datatype=='RNA') {
+      txdb <- getFromNamespace(transcript.db, ns=transcript.db)
+      genes <- sort(keepStandardChromosomes(genes(txdb), pruning.mode='coarse'))
+      # seqlevelsStyle(genes) <- seqlevelsStyle(bins)[1]
+      args <- list(file=x, param=Rsamtools::ScanBamParam(which=range(genes)))
+    } else {
+      args <- list(file=x) #, what="mapq", mapqFilter=min.mapq),
+      # param=Rsamtools::ScanBamParam(which=range(gr)))
+    }
+    
     if (pairedEndReads)
         fun = GenomicAlignments::readGAlignmentPairs
     else
@@ -45,7 +54,6 @@ readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10
 #        args$flag <- Rsamtools::scanBamFlag(isDuplicate=FALSE)
     data.raw = do.call(fun, args)
     stopTimedMessage(ptm)
-
     if (length(data.raw) == 0) {
         if (pairedEndReads)
             stop("No reads imported. Does your file really contain paired end ",
@@ -61,6 +69,10 @@ readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10
         data <- GenomicAlignments::granges(data.raw, use.mcols=TRUE)
     stopTimedMessage(ptm)
 
+    if(datatype=='RNA'){
+        data <- calcMeanGeneExpression(data, genes)
+    }
+    
     ptm <- startTimedMessage("Filtering reads ...")
     data <- data[GenomicRanges::width(data) <= max.fragment.width]
     stopTimedMessage(ptm)

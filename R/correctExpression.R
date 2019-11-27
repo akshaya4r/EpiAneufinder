@@ -50,7 +50,8 @@ correctExpression <- function(reads) {
 # should this addGCcontent if not already present?
 correctExpression.GRanges <- function(reads) {
   reads$uncorrected <- reads$counts
-  reads$counts <- (reads$uncorrected/reads$expressionFactor)*width(reads[1])
+  # reads$counts <- (reads$uncorrected/reads$expressionFactor)*width(reads[1])
+  reads$counts <- reads$uncorrected/reads$numgenes
   reads
 }
 

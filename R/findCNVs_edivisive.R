@@ -96,9 +96,9 @@ edivisive.findCNVs <- function(binned.data, ID=NULL, CNgrid.start=1.5,
     seqlengths(result$segments) <- seqlengths(binned.data)[names(seqlengths(result$segments))]
 
     bin.num <- NULL # --> Determine the number of bins for each segment
-    for (chr in unique(as.character(seqnames(result$bins))))
+    for (chr in unique(as.character(seqnames(result$bins)))) {
         bin.num <- c(bin.num, rle(as.character(result$bins$state[
-                which(as.character(seqnames(result$bins)) == chr)]))$lengths)
+                which(as.character(seqnames(result$bins)) == chr)]))$lengths) }
     result$segments$num.bins <- bin.num
     mcols(result$segments) <- mcols(result$segments)[c("num.bins","mean.counts","mean.mcounts",
                                                      "mean.pcounts","state","copy.number")]

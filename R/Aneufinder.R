@@ -74,13 +74,12 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
                        reads.store=FALSE, correction.method=NULL,
                        GC.BSgenome=NULL, method='edivisive', strandseq=FALSE,
                        R=10, sig.lvl=0.1, eps=0.01, max.time=60, max.iter=5000,
-                       num.trials=15,transcript.db=NULL,datatype=NULL,
+                       num.trials=15, transcript.db=NULL, datatype=NULL,
                        states=c('zero-inflation',paste0(0:10,'-somy')),
                        most.frequent.state='2-somy',
                        most.frequent.state.strandseq='1-somy', confint=NULL,
                        refine.breakpoints=FALSE, hotspot.bandwidth=NULL,
                        hotspot.pval=5e-2, cluster.plots=TRUE, rrbs=FALSE) {
-  
   
   print("Executing the EpiAneufinder package")
   # load config params, but arguments take priority
@@ -92,7 +91,6 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
   conf$reuse.existing.files <- reuse.existing.files #FIXME: take this from call (match w/ default args)
   conf$cluster.plots <- cluster.plots
    
-  
   #    checkClass(conf=conf) # this is still too verbose
   # ^^ also should check/set [most will be done in checkClass already]:
   #  binsize/stepsize is integer >= 1; one step size for each bin size
@@ -121,12 +119,13 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
                  hotspot.pval=hotspot.pval, cluster.plots=cluster.plots, rrbs=rrbs, datatype=datatype, transcript.db=transcript.db)
   conf <- c(conf, params[setdiff(names(params),names(conf))])
   writeConfig(conf, configfile=file.path(outputfolder, 'AneuFinder.config'))
-  
+
   makedir(conf$outputfolder)
   seqinfo <- genome(assembly)
   
-  if (length(inputfolder) == 1 && dir.exists(inputfolder))
+  if (length(inputfolder) == 1 && dir.exists(inputfolder)) {
     inputfolder = list.files(inputfolder, "\\.(bam|bed(\\.gz)?)$", full.names=TRUE)
+  }
   names(inputfolder) <- tools::file_path_sans_ext(basename(inputfolder))
   
   ###
@@ -173,7 +172,6 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
       saveRDS(bins, file=fname)
   }
   
-
   # missing: filtered reads -- file.path(conf[['outputfolder']],'filtered')
   if (is.null(chromosomes))
     bins = GenomeInfoDb::keepStandardChromosomes(bins, pruning.mode="coarse")
@@ -191,6 +189,7 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
     
     args <- conf[intersect(names(conf), names(formals(readGRanges)))]
     reads <- do.call("binReads", c(args, list(reads=x, bins=bins)))
+ 
     if ("GC" %in% correction.method)
       reads <- correctGC(reads, method="loess")
     if (rrbs)
