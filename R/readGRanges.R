@@ -35,8 +35,16 @@ readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10
     }
 
     ptm <- startTimedMessage("Reading file ", basename(x$path), " ...")
-    args <- list(file=x) #, what="mapq", mapqFilter=min.mapq),
-                 #param=Rsamtools::ScanBamParam(which=range(gr)))
+    if(RNAseq) {
+      txdb <- getFromNamespace(gene.annotation, ns=gene.annotation)
+      genes <- sort(keepStandardChromosomes(genes(txdb)))
+      seqlevelsStyle(genes) <- seqlevelsStyle(reads)[1]
+      args <- list(file=x, param=Rsamtools::ScanBamParam(which=range(genes)))
+    } else {
+      args <- list(file=x) #, what="mapq", mapqFilter=min.mapq),
+      # param=Rsamtools::ScanBamParam(which=range(gr)))
+    }
+    
     if (pairedEndReads)
         fun = GenomicAlignments::readGAlignmentPairs
     else
