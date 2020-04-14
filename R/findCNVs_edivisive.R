@@ -45,10 +45,13 @@ edivisive.findCNVs <- function(binned.data, ID=NULL, CNgrid.start=1.5,
         result$warnings <- warlist
         return(result)
     } else if (any(counts < 0)) {
-        wstr = paste0("ID = ", ID, ": Some counts in data are negative. No Edivisive done.")
+        # wstr = paste0("ID = ", ID, ": Some counts in data are negative. No Edivisive done.")
+        # warlist[[length(warlist)+1]] <- warning(wstr)
+        # result$warnings <- warlist
+        # return(result)
+        wstr = paste0("ID = ", ID, ": Some counts in data are negative.")
         warlist[[length(warlist)+1]] <- warning(wstr)
-        result$warnings <- warlist
-        return(result)
+        binned.data[which(binned.data$counts<0)]$counts <- 0
     }
     
     set.seed(0)
