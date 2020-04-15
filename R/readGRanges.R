@@ -36,7 +36,7 @@ readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10
         stopTimedMessage(ptm)
     }
     ptm <- startTimedMessage("Reading file ", basename(x$path), " ...")
-    if(datatype=='RNA') {
+    if("RNA" %in% datatype) {
       txdb <- getFromNamespace(transcript.db, ns=transcript.db)
       genes <- sort(keepStandardChromosomes(genes(txdb), pruning.mode='coarse'))
       # seqlevelsStyle(genes) <- seqlevelsStyle(bins)[1]
@@ -69,7 +69,7 @@ readGRanges.BamFile <- function(x, seqinfo=GenomeInfoDb::seqinfo(x), min.mapq=10
         data <- GenomicAlignments::granges(data.raw, use.mcols=TRUE)
     stopTimedMessage(ptm)
 
-    if(datatype=='RNA'){
+    if("RNA" %in% datatype){
         data <- calcMeanGeneExpression(data, genes)
     }
     

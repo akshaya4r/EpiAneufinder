@@ -188,7 +188,6 @@ Aneufinder <- function(inputfolder, outputfolder, assembly, configfile=NULL,
       return(readRDS(fname))
     
     args <- conf[intersect(names(conf), names(formals(readGRanges)))]
-    stop()
     reads <- do.call("binReads", c(args, list(reads=x, bins=bins)))
  
     if ("GC" %in% correction.method)
